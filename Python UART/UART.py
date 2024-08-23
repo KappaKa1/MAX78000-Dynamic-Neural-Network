@@ -1,3 +1,6 @@
+# This is the main code that will be used for UART communication.
+
+
 import serial
 import time
 import numpy as np
@@ -6,24 +9,24 @@ import csv
 import torch
 
 # Communication Settings
-RX_SIZE = 20 + 2 #2 for time
-TEST_SIZE = 10000
+RX_SIZE = 20 + 2 # +2 for inference time values
+TEST_SIZE = 10000 # Modify this for test size
 TX_SIZE = 1 * 28 * 28
 DELAY = 0
 NO_OUTPUTS = 10
 
 # UART Settings
-BAUD_RATE = 115200
-PORT = 'COM9'
-TIMEOUT = 2
+BAUD_RATE = 115200 # Replace with the desired Baud Rate
+PORT = 'COM9' # Replace with your Serial Port (Device Manager)
+TIMEOUT = 2 # Delay for reading inputs
 
 # Variables
 output = np.zeros(RX_SIZE, dtype=np.uint8)
 
 # Configure the serial port
-serial_port = PORT  # Replace with your serial port (e.g., '/dev/ttyUSB0' on Linux/macOS)
-baud_rate = BAUD_RATE      # Replace with your baud rate
-timeout = TIMEOUT           # 1-second timeout for read operations
+serial_port = PORT 
+baud_rate = BAUD_RATE      
+timeout = TIMEOUT         
 
 # Load MNIST dataset
 _ , (test_images, test_labels) = mnist.load_data()
@@ -40,7 +43,7 @@ print(f"Opened serial port {serial_port} at {baud_rate} baud.")
 # Give the connection a second to settle
 time.sleep(2)
 
-# Waits for the board to send the "Start" Signal
+# Synchronizes the communication with the MAX78000 Board
 times = 0;
 while times < RX_SIZE:
     response = ser.read(1)  # Read 1 byte from the board
@@ -64,9 +67,10 @@ for x in range(TEST_SIZE):
     
     for hexa in range(int(TX_SIZE/4)):
         for byte in range(3, -1, -1):
-            byte_to_send = int(image[hexa * 4 + byte] ^ 128)
-            byte_data = byte_to_send.to_bytes(1, byteorder='big', signed=False)
-            ser.write(byte_data)
+            # The order of the bytes sent is inverted, thus the argument of the for-loop
+            byte_to_send = int(image[hexa * 4 + byte] ^ 128) # Normalizes the data to [-128,127]
+            byte_data = byte_to_send.to_bytes(1, byteorder='big', signed=False) # Converts the bits to a byte
+            ser.write(byte_data) # Sends the byte
 
     writer.writerow(["This is test number: ", x])
     writer.writerow(["The Label of this picture is: ", label])
@@ -90,6 +94,7 @@ for x in range(TEST_SIZE):
         print(f"Class {y}: \t{output[y]}.{output[y+10]}")
         writer.writerow([str(y) + ": ", str(output[y]) + "." + str(output[y+10])])
 
+    # Output Checking, ensuring the number with the highest confidence is same as the label, and that the highest confidence does not repeat
     highest_number = 0
     highest_index = 0
     repeat = 0
