@@ -17,18 +17,19 @@
 #include "gpio.h"
 
 
-//Means P2.6, to select percentage
+// Configure P2.6 to Input to modify Percentage
 #define MXC_GPIO_PB_PORT_IN              MXC_GPIO2
 #define MXC_GPIO_PB_PIN_IN               MXC_GPIO_PIN_6
 
-//Means P2.7, to start inference
+// Configure P2.7 to Input to start Inference
 #define MXC_GPIO_PB_PORT_IN_2            MXC_GPIO2
 #define MXC_GPIO_PB_PIN_IN_2             MXC_GPIO_PIN_7
 
+// Variables used for reading pins
 static mxc_gpio_cfg_t gpio_perc;
 static mxc_gpio_cfg_t gpio_start;
 
-void initiate_PB(void);
-int button_pushed(void);
+void initiate_PB(void); // Initiates the Push Buttons
+int button_pushed(void); // Wait for any user interaction of the push buttons
 
 #endif /* PUSH_BUTTON_H_ */
