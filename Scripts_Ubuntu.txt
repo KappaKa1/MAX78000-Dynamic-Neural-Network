@@ -5,10 +5,11 @@ source .venv/bin/activate
 
 # Arguments used in Training
 # For train_altered.py, the code itself have to be altered (Changing the models, log directory and ratio) before running the commands
+# The epochs for subsequent models must be lower than the previous!
 (ai8x-training) $ python train.py --lr 0.1 --optimizer SGD --epochs 15 --compress policies/schedule.yaml --model mnist_25 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
 (ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --model mnist_50 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
-(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --model mnist_75 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
-(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --model mnist_100 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
+(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 4 --model mnist_75 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
+(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 3 --model mnist_100 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
 
 # Producing a YAML file for network description ( although not perfect and have to be modified ), yaml file found in ai8x-training directory
 (ai8x-training) $ python train.py --device MAX78000 --model <model> --dataset MNIST --epochs 5 --yaml-template <name>.yaml
