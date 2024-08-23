@@ -1,0 +1,1 @@
+//wsl.localhost/Ubuntu-22.04/root/Summer_Project/ai8x-training/mnist_10000_int64.npz
