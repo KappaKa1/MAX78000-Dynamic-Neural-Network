@@ -371,9 +371,8 @@ int cnn_configure(uint32_t Perc)
 
 		switch(Perc)
 		{
-		//Layer 2 affects the resolution of Layer 3, and have very significant effects on the output.
-		//Worth to Play around when there is time and find the perfect balance between this 2 layers
-
+			// Modifies the register for Weight Address (Start, End) and Active Processor number based 
+			// on the PERCENTAGE chosen for inference
 			case 100:
 			{
 				//Configuration for Layer 0
