@@ -13,11 +13,11 @@
 #include "nvic_table.h"
 #include "mxc.h"
 
-#define UART_BAUD           	115200
-#define TX_SIZE					20
-#define RX_SIZE					1*28*28
-#define UART_SETTING			UART2_IRQn
-#define UART_NO					MXC_UART2
+#define UART_BAUD           	115200     // Configure this based on the UART settings
+#define TX_SIZE					      20 + 2     // Transmit Buffer's size
+#define RX_SIZE					      1*28*28    // Receive Buffer's size
+#define UART_SETTING			    UART2_IRQn // Configure this based on the UART being used
+#define UART_NO					      MXC_UART2  // Configure this based on the UART being used
 
 
 void init_UART(void); // Initiates UART
