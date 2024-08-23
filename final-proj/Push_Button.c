@@ -51,8 +51,10 @@ int button_pushed(void)
 {
 	// High when not pressed, Low when pressed
 	printf("The current percentage is %d%\n", perc);
-	while(1)
-	{
+	while(1) 
+	{	// Waits for the user to press P2.7 to start inference
+
+		// Reads if the user press P2.6
 		if (!(MXC_GPIO_InGet(gpio_perc.port, gpio_perc.mask)))
 		{
 			if (perc == 100) perc = 25;
@@ -60,7 +62,9 @@ int button_pushed(void)
 			while(!(MXC_GPIO_InGet(gpio_perc.port, gpio_perc.mask)));
 			MXC_Delay(1000);
 			printf("The current percentage selected is %d%\n", perc);
-	    }
+	    	}
+
+		// Reads if the user press P2.7
 		if (!(MXC_GPIO_InGet(gpio_start.port, gpio_start.mask)))
 		{
 			return perc;
