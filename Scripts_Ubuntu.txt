@@ -1,0 +1,28 @@
+# Activates Training
+cd Summer_Project/ai8x-training
+pyenv local 3.11.8 # Alter based on your version
+source .venv/bin/activate
+
+# Arguments used in Training
+# For train_altered.py, the code itself have to be altered (Changing the models, log directory and ratio) before running the commands
+(ai8x-training) $ python train.py --lr 0.1 --optimizer SGD --epochs 15 --deterministic --compress policies/schedule.yaml --model mnist_25 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
+(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --deterministic --model mnist_50 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
+(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --deterministic --model mnist_75 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
+(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --deterministic --model mnist_100 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
+
+# Producing a YAML file for network description ( although not perfect and have to be modified ), yaml file found in ai8x-training directory
+(ai8x-training) $ python train.py --device MAX78000 --model <model> --dataset MNIST --epochs 5 --yaml-template <name>.yaml
+
+# Evaluation of Quantisized weights
+(ai8x-training) $ python train.py --model <model> --dataset MNIST_test --confusion --evaluate --exp-load-weights-from ../ai8x-synthesis/trained/<name>.pth.tar -8 --device MAX78000 "$@"
+
+# Activates Synthesis
+cd Summer_Project/ai8x-synthesis
+pyenv local 3.11.8 # Alter based on your version
+source .venv/bin/activate
+
+# Quantisize Weight files, weight file found in ai8x-synthesis/trained
+(ai8x-synthesis) $ python quantize.py ../ai8x-training/logs/<CHANGE THIS>/best.pth.tar trained/<name>.pth.tar --device MAX78000 -v "$@"
+
+# Producing .c file for compilation into Board
+(ai8x-synthesis) $ python ai8xize.py --verbose --test-dir demos --prefix <name> --checkpoint-file trained/<name>.pth.tar --config-file networks/<model>.yaml --device MAX78000 --compact-data --softmax --energy --no-kat
