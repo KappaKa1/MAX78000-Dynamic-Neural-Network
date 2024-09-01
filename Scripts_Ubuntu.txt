@@ -6,10 +6,10 @@ source .venv/bin/activate
 # Arguments used in Training
 # For train_altered.py, the code itself have to be altered (Changing the models, log directory and ratio) before running the commands
 # The epochs for subsequent models must be lower than the previous!
-(ai8x-training) $ python train.py --lr 0.1 --optimizer SGD --epochs 15 --deterministic --compress policies/schedule.yaml --model mnist_25 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
-(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --deterministic --model mnist_50 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
-(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 3 --model mnist_75 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
-(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 3 --deterministic --model mnist_100 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 "$@"
+(ai8x-training) $ python train.py --lr 0.1 --optimizer SGD --epochs 25 --deterministic --compress policies/schedule.yaml --model mnist_25 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 --qat-policy policies/KC_policies/MNIST/qat_policy_kc_start.yaml "$@"
+(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --deterministic --compress policies/schedule.yaml --model mnist_50 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 --qat-policy policies/KC_policies/MNIST/qat_policy_kc_others.yaml "$@"
+(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --deterministic --compress policies/schedule.yaml --model mnist_75 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 --qat-policy policies/KC_policies/MNIST/qat_policy_kc_others.yaml "$@"
+(ai8x-training) $ python train_altered.py --lr 0.1 --optimizer SGD --epochs 5 --deterministic --compress policies/schedule.yaml --model mnist_100 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 --qat-policy policies/KC_policies/MNIST/qat_policy_kc_others.yaml "$@"
 
 # Producing a YAML file for network description ( although not perfect and have to be modified ), yaml file found in ai8x-training directory
 (ai8x-training) $ python train.py --device MAX78000 --model <model> --dataset MNIST --epochs 5 --yaml-template <name>.yaml
@@ -23,7 +23,7 @@ pyenv local 3.11.8 # Alter based on your version
 source .venv/bin/activate
 
 # Quantisize Weight files, weight file found in ai8x-synthesis/trained
-(ai8x-synthesis) $ python quantize.py ../ai8x-training/logs/<CHANGE THIS>/best.pth.tar trained/<name>.pth.tar --device MAX78000 -v "$@"
+(ai8x-synthesis) $ python quantize.py ../ai8x-training/logs/<CHANGE THIS>/qat_best.pth.tar trained/<name>.pth.tar --device MAX78000 -v "$@"
 
 # Producing .c file for compilation into Board
 (ai8x-synthesis) $ python ai8xize.py --verbose --test-dir demos --prefix <name> --checkpoint-file trained/<name>.pth.tar --config-file networks/<model>.yaml --device MAX78000 --compact-data --softmax --energy --no-kat
