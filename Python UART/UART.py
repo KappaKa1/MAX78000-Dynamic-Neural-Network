@@ -97,21 +97,21 @@ for x in range(TEST_SIZE):
     # Output Checking, ensuring the number with the highest confidence is same as the label, and that the highest confidence does not repeat
     highest_number = 0
     highest_index = 0
-    repeat = 0
-    for index in range(10):
-        number = output[index] + output[index+10]/100.0
+    repeat = -1
+    for index in range(NO_OUTPUTS):
+        number = output[index] + output[index + NO_OUTPUTS]/100.0
         if number > highest_number:
             highest_index = index
             highest_number = number
 
-    for index in range(10):
-        number = output[index] + output[index+10]/100.0
-        if number == highest_number:
+    for index in range(NO_OUTPUTS):
+        number = output[index] + output[index + NO_OUTPUTS]/100.0
+        if number >= (output[label] + output[label + NO_OUTPUTS]/100.0):
             repeat = repeat + 1
     
-    if label != highest_index: writer.writerow(["Wrong"])
-    elif repeat > 1: writer.writerow(["Wrong"])
-    else: writer.writerow(["Correct"])
+    if repeat == 0: writer.writerow(["Correct"])
+    elif repeat <= 5: writer.writerow(["TOP 5"])
+    else: writer.writerow(["Wrong"])
     writer.writerow(["Time Taken", str(output[20] * 256 + output[21]) + " us"])
                     
     writer.writerow([])
