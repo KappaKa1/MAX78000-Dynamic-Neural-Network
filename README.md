@@ -5,7 +5,7 @@
   A detailed walkthrough of all the necessary installations can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#installation). The project was carried out using a Windows 11 operating system, and installed **Ubuntu** for a virtual Linux environment. The main IDE used is the provided **Eclipse**. 
 
 # Training the AI Dynamic Model
-  The training stage is crucial for building a Model with dynamic traits. The training method utilized is similar to inheriting, where a model would inherit parts of its initial parameters from a smaller yet similar trained model. It would then undergo the training process such that its weights would be trained while retaining some resemblance of the previous model. The figure below illustrates the training process.
+  Before describing the Dynamic approach, here are some important information to take note of which governs the way training should be done for the most part of the project. The Dynamic approach strictly follows these steps, but diverges in [train.py]()
   
 ## Data Loader Design and Model Design
   A Data Loader is required during training and has different designs for different datasets. It handles data preperation, like preprocessing or normalizing, and ensures that the data is fit for training. The MAX78000 directory provides many Data Loader designs for many datasets, like MNIST and Cifar100. For datasets that are not provided, please refer to [this](https://www.analog.com/en/resources/app-notes/data-loader-design-for-max78000-model-training.html) for steps to designing a data loader. 
@@ -16,16 +16,18 @@
 ### train.py
   The MAX78000 provides a training software **"train.py"** which should be used when training any models for the board. It can be activated through the shell script (Ubuntu 22.04.03), coupled with other arguments that can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#command-line-arguments).
 ### Quantisation Aware Training (QAT)
+
+## Training the Dynamic Model
+  The training stage is crucial for building a Model with dynamic traits. The training method utilized is similar to inheriting, where a model would inherit parts of its initial parameters from a smaller yet similar trained model. It would then undergo the training process such that its weights would be trained while retaining some resemblance of the previous model. The figure below illustrates the training process.
 ### train_altered.py
 ### Optimizing the Dynamic Model Accuracy
 
-# Converting the python script into C
-## Quantasizing the Model
-## Network Description file (.yaml)
-## ai8xer.py
+# Synthesising and Modification of the code for Dynamic Model
+## Synthesising and ai8xer.py
+## Weights and Processor modification for Dynamic Model
 
 # Data Streaming and Testing
-## Data Normalizing
+## Data Normalizing and Loading of Data (HCW)
 ## UART Initialisation and UART Transaction
 
 # Future Works
