@@ -10,7 +10,7 @@
 ## Data Loader Design
   A Data Loader is required during training and has different designs for different datasets. It handles data preperation, like preprocessing or normalizing, and ensures that the data is fit for training. The MAX78000 directory provides many Data Loader designs for many datasets, like MNIST and Cifar100. For datasets that are not provided, please refer to [this](https://www.analog.com/en/resources/app-notes/data-loader-design-for-max78000-model-training.html) for steps to designing a data loader. 
 ## Model Design
-  The MAX78000 uses the **"ai8x.py"** library 
+  The MAX78000 uses the **"ai8x.py"** library and its predefined modules to describe the model design. The list of predefined modules can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#list-of-predefined-modules). All model designs have to use the predefined modules to be compatible with the MAX78000, and pre-existing models can be adapted for compatibility by following [steps listed here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#adapting-pre-existing-models).  
 ## Training the model
 ## Quantisation Aware Training (QAT)
 ## train_altered.py
