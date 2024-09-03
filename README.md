@@ -5,17 +5,18 @@
   A detailed walkthrough of all the necessary installations can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#installation). The project was carried out using a Windows 11 operating system, and installed **Ubuntu** for a virtual Linux environment. The main IDE used is the provided **Eclipse**. 
 
 # Training the AI Dynamic Model
-  Before describing the Dynamic approach, here are some important information to take note of which governs the way training should be done for the most part of the project. The Dynamic approach strictly follows these steps, but diverges in [train.py](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#trainpy) as the software does not support Dynamic training.
+  Before describing the Dynamic approach, here are some important information to take note of which governs the way training should be done for the most part of the project. The Dynamic approach strictly follows these steps, but diverges in [train.py](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#trainpy) as the software does not support Dynamic training. The Dynamic Training consist of models inheriting parameters from previous smaller models, which are predefind sizes of 25%, 50%, 75% and 100% (final model). The final model produced, although not entirely similar, would have parameters resembling previous models. This allow the model to alter in size, though in discrete values, and still retaining some accuracy.
   
 ## Data Loader Design and Model Design
 ### Data Loader
-  A Data Loader is required during training and has different designs for different datasets. It handles data preperation, like preprocessing or normalizing, and ensures that the data is fit for training. The MAX78000 directory provides many Data Loader designs for many datasets, like MNIST and Cifar100, and are readily available for use in training. For datasets that are not provided, please refer to the [steps on designing a data loader](https://www.analog.com/en/resources/app-notes/data-loader-design-for-max78000-model-training.html). 
-  During training, the data loader normalizes the data to values of [$$\frac{-128}{128}$$,$$\frac{127}{128}$$]
+  A Data Loader is required during training and has different designs for different datasets. It handles data preperation, like preprocessing or normalizing, and ensures that the data is fit for training. The MAX78000 directory provides many Data Loader designs for many datasets, like MNIST and Cifar100, and are readily available for use in training. For datasets that are not provided, please refer to the [steps on designing a data loader](https://www.analog.com/en/resources/app-notes/data-loader-design-for-max78000-model-training.html). For training purposes, the data loader normalizes the data to values of [-128/128, 127/128] and converts the data type to Tensor.
   
-  The Data Loader used for the MNIST Dynamic MNIST Model is the provided MNIST Data Loader, which has already 
+  The Data Loader used in the training of MNIST Dynamic MNIST Model is the provided MNIST Data Loader, which has already process the MNIST dataset in such a way that it is suitable for training. The data loader also morphs the data (turning the picture 30 degrees or offsetting the image) which prevents overfitting and enhances the model's accuracy.
 
 ### Model Design
   The MAX78000 uses the **"ai8x.py"** library and its predefined modules to describe the model design. The list of predefined modules can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#list-of-predefined-modules). All model designs have to use the predefined modules to be compatible with the MAX78000, and pre-existing models can be adapted for compatibility by following [steps listed here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#adapting-pre-existing-models).
+
+  Due to the simplistic nature of the MNIST dataset, the Dynamic Model design consists solely of 2D convolution with 2D pooling and a final fully connected layer for categorizing the results. The final model (100%) contains 64-channels, and its subsequnt models that are 25%, 50% and 75% contains 16-channels, 32-channels and 48-channels respectively.
   
 ## Model Training
 ### train.py
