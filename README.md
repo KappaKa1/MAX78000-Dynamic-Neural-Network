@@ -27,7 +27,6 @@
   The training stage is crucial for building a Model with dynamic traits. The training method utilized is similar to inheriting, where a model would inherit parts of its initial parameters from a smaller yet similar trained model. It would then undergo the training process such that its weights would be trained while retaining some resemblance of the previous model. The figure below illustrates the training process.
   <image>
   The intensity of the Dynamic Model training depends heavily on the Dataset itself and the amount of nested models needed. And the intensity of each training of subsequent models is negatively correlated with the accuracy of the subsequent models. This is shown in the results section of the Dynamic MNIST model where the subsequent models in the Dynamic Model performing worse than its counterpart which did not undergo dynamic training. This is also supported by the explanation that additional training epochs would likely alter the original parameters provided by the previous models.
-### Dynamic Model
 ### train_altered.py
   In order to support Dynamic Training, the original **"train.py"** has to be altered; while at the same time causing minimum inteference to the entire training process. 
 ## Optimizing the Dynamic Model Accuracy
@@ -37,6 +36,9 @@
 
 # Synthesising and Modification of the code for Dynamic Model
 ## Synthesising and ai8xer.py
+  The MAX78000 provides a software, **"ai8xer.py"**, that translates the python model code into C language that can be synthesized onto the board. There are 3 main files that are required when using the **"ai8xer.py"**, and are the python model, the network description file and the sample file. Information on the python model found can be found [here]().
+### Network Description file and Sample file
+  The network description file contains high-level codes which describes inner workings, like processor enables, to the board. It can be generat
 ## Weights and Processor modification for Dynamic Model
 
 # Data Streaming and Testing
