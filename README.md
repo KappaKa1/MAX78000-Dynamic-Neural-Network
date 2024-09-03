@@ -16,13 +16,18 @@
   
 ## Model Training
 ### train.py
-  The MAX78000 provides a training software **"train.py"** which should be used when training any models for the board. It can be activated through the shell script (Ubuntu 22.04.03), coupled with other arguments that can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#command-line-arguments). However, this software does restricts Dynamic Model training. Thus it was modified in [train_altered.py]() to support Dynamic Model training. More information would be provided there.
+  The MAX78000 provides a training software **"train.py"** which should be used when training any models for the board. It can be activated through the shell script (Ubuntu 22.04.03), coupled with other arguments that can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#command-line-arguments). However, this software does restricts Dynamic Model training. Thus it was modified in [train_altered.py](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#train_alteredpy) to support Dynamic Model training. More information is provided there.
 ### Quantisation Aware Training (QAT)
-
+  During 
 ## Training the Dynamic Model
   The training stage is crucial for building a Model with dynamic traits. The training method utilized is similar to inheriting, where a model would inherit parts of its initial parameters from a smaller yet similar trained model. It would then undergo the training process such that its weights would be trained while retaining some resemblance of the previous model. The figure below illustrates the training process.
+### Dynamic Model
 ### train_altered.py
-### Optimizing the Dynamic Model Accuracy
+  In order to support Dynamic Training, the original **"train.py"** has to be altered; while at the same time causing minimum inteference to the entire training process. 
+## Optimizing the Dynamic Model Accuracy
+### Epochs
+### Training Schedule policy
+### QAT policy
 
 # Synthesising and Modification of the code for Dynamic Model
 ## Synthesising and ai8xer.py
