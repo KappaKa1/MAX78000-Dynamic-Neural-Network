@@ -1,0 +1,68 @@
+---
+# YAML template -- requires manual editing, particularly with regard to out_offset and processors
+# Generated for MAX78000 with input format CHW
+
+arch: mnist_100
+dataset: MNIST
+
+layers:
+  # Layer 0
+  - name: conv1_Conv_2  # conv1_Conv_2 fused with conv1.activate
+    # input shape: (1, 28, 28)
+    data_format: CHW
+    processors: 0x0000000000000001
+    out_offset: 0x4000
+    op: Conv2d
+    kernel_size: 3x3
+    pad: 0
+    activate: Relu
+    # output shape: (64, 26, 26)
+
+  # Layer 1
+  - name: conv2_Conv_2  # conv2_Conv_2 fused with conv2.activate
+    # input shape: (64, 26, 26)
+    processors: 0xffffffffffffffff
+    out_offset: 0x0000
+    op: Conv2d
+    kernel_size: 3x3
+    pad: 0
+    activate: Relu
+    # output shape: (64, 24, 24)
+
+  # Layer 2
+  - name: conv3_Conv_2  # conv3.pool and conv3_Conv_2 fused with conv3.activate
+    # input shape: (64, 24, 24)
+    processors: 0xffffffffffffffff
+    out_offset: 0x4000
+    op: Conv2d
+    kernel_size: 3x3
+    pad: 0
+    activate: Relu
+    max_pool: 2
+    pool_stride: 2
+    pool_dilation: [1, 1]
+    # output shape: (64, 10, 10)
+
+  # Layer 3
+  - name: conv4_Conv_2  # conv4.pool and conv4_Conv_2 fused with conv4.activate
+    # input shape: (64, 10, 10)
+    processors: 0xffffffffffffffff
+    out_offset: 0x0000
+    op: Conv2d
+    kernel_size: 1x1
+    pad: 0
+    activate: Relu
+    max_pool: 2
+    pool_stride: 2
+    pool_dilation: [1, 1]
+    # output shape: (12, 5, 5)
+
+  # Layer 4
+  - name: fc_MatMul_3
+    # input shape: (12, 5, 5)
+    processors: 0x000000000000fff0
+    out_offset: 0x4000
+    op: Linear
+    flatten: true
+    activate: None
+    # output shape: (10,)
