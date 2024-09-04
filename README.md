@@ -25,7 +25,7 @@
 ## Model Training
 ### train.py
   The MAX78000 provides a training software **"train.py"** which should be used when training any models for the board. It can be activated through the shell script (Ubuntu 22.04.03), coupled with other arguments that can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#command-line-arguments). However, this software does restricts Dynamic Model training. Thus it was modified in [train_altered.py](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#train_alteredpy) to support Dynamic Model training. More information is provided there.
-### Quantisation Aware Training (QAT)
+### Quantisation Aware Training (QAT) FINISH THIS
   Before the calculated weights from the training are synthesised onto the board, it has to be quantisized.
 ## Training the Dynamic Model
   The training stage is crucial for building a Model with dynamic traits. The training method utilized is similar to inheriting, where a model would inherit parts of its initial parameters from a smaller yet similar trained model. It would then undergo the training process such that its weights would be trained while retaining some resemblance of the previous model. The figure below illustrates the training process.
@@ -39,7 +39,9 @@
 ### Number of Epochs
   The number of epochs firstly depends heavily of the type of dataset, but that will not be the area of focus. For the first starting model (base model), the number of epochs should be high to set a good foundation for the subsequent models and for its accuracy. The number of epochs should reflect the stage in which the accuracy of the model stabilizes, in the case of MNIST is 25 epochs. For the subsequent models however, each additional epoch would likely mean a decreased accuracy for all previous models before it, especially the base model. The selected epoch number have to therefore balance between increasing the current model's accuracy and maintaining previous models' accuracy. The best approach is using trial and error, and in the case of MNIST is found to be 5 epochs each for subsequent models.
 ### Number of subsequent models
+  The number of seubsequent models affects the number of epochs. With a high number of subsequent models, the starting few models' accuracy would be heavily impeded due to the high dynamic training frequency. Thus, a suitable number of subsequency models have to be chosen to maintain a high accuracy for the base model. The MNIST Dynamic Model uses 4 total models, and are 25%, 50%, 75% and 100%.
 ### QAT policy
+
 
 # Synthesising and Modification of the code for Dynamic Model
 ## Synthesising and ai8xer.py
@@ -48,8 +50,10 @@
   The network description file contains high-level codes which describes inner workings, like processor enables, to the board. It can be generat
 ## Weights and Processor modification for Dynamic Model
 
-# Data Streaming and Testing
+# Data Streaming, Testing and Data Collecting
+  The model on MAX78000 have to be validated with the **TEST DATASET** provided in the MNIST Dataset. The data are loaded onto the MAX78000 using a UART from a laptop, and the output of the inference (plus inference time) is outputted from the MAX78000 to the laptop. As for the values of power consumptions, there is a usb port (CN1) that uses UART to output the data per inference and can be collected using a laptop (although this is not done in the project due to the lack of ports). The values of power consumptions can alternatively be observed through the LED display provided on the MAX78000 EV kit board (which is the primary method for obtaining energy data in this project).
 ## Data Normalizing and Loading of Data (HCW)
+  The values of the MNIST dataset comes in the ranges of [0,255]. The MAX78000 requires all data input to be normalized in the range of [-128,127], and this is done through XOR gate of 128 (^ 128) for the MNSIT dataset. The format in which the MNIST inputs are stored is HCW [(Height-Width-Channel)](https://github.com/analogdevicesinc/ai8x-training#hwc-height-width-channels).
 ## UART Initialisation and UART Transaction
 
 # Future Works
