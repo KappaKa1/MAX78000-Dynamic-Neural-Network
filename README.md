@@ -2,10 +2,14 @@
   The focus for project is to study the effects of altering the parameter size used in an inference. The Dynamic Model used in this experiment is capable of altering the size of its parameter during an inference in exchange for a faster processing time and lesser energy consumption. 
   
 # Software and Environment set-up installations
-  A detailed walkthrough of all the necessary installations can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#installation). The project was carried out using a Windows 11 operating system, and installed **Ubuntu** for a virtual Linux environment. The main IDE used is the provided **Eclipse**. 
+  Before embarking on the project, there are several software and environment set-ups that have to be done. A detailed walkthrough of all the necessary installations can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#installation). 
+  Here are the information for the systems involved in the project:
+  - The project was carried out using a Windows 11 operating system
+  - **Ubuntu 22.04.3 LTS** was used for a virtual Linux environment.
+  - The main IDE used is the provided **Eclipse** 
 
 # Training the AI Dynamic Model
-  Before describing the Dynamic approach, here are some important information to take note of which governs the way training should be done for the most part of the project. The Dynamic approach strictly follow these information, but diverges in [train.py](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#trainpy) as the software does not support Dynamic training. The Dynamic Training consist of models inheriting parameters from previous smaller models, which are predefind sizes of 25%, 50%, 75% and 100% (final model). The final model produced, although not entirely similar, would have parameters resembling previous models. This allow the model to alter in size, though in discrete values, while still retaining some accuracy.
+  Before describing the Dynamic training approach, here are some important information to take note of which governs the way training should be done for the most part of the project. The Dynamic approach strictly follow these information, but diverges in [train.py](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#trainpy) as the software does not support Dynamic training. The Dynamic Training consist of models inheriting parameters from previous smaller trained models, and are predefind sizes of 25%, 50%, 75% and 100% (final model). The final model produced, although not entirely similar, would have parameters resembling previous models. This allow the model to alter in size, though in discrete values, while still retaining some accuracy.
   
 ## Data Loader Design and Model Design
 ### Data Loader
@@ -22,16 +26,19 @@
 ### train.py
   The MAX78000 provides a training software **"train.py"** which should be used when training any models for the board. It can be activated through the shell script (Ubuntu 22.04.03), coupled with other arguments that can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#command-line-arguments). However, this software does restricts Dynamic Model training. Thus it was modified in [train_altered.py](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#train_alteredpy) to support Dynamic Model training. More information is provided there.
 ### Quantisation Aware Training (QAT)
-  During 
+  Before the calculated weights from the training are synthesised onto the board, it has to be quantisized.
 ## Training the Dynamic Model
   The training stage is crucial for building a Model with dynamic traits. The training method utilized is similar to inheriting, where a model would inherit parts of its initial parameters from a smaller yet similar trained model. It would then undergo the training process such that its weights would be trained while retaining some resemblance of the previous model. The figure below illustrates the training process.
   <image>
   The intensity of the Dynamic Model training depends heavily on the Dataset itself and the amount of nested models needed. And the intensity of each training of subsequent models is negatively correlated with the accuracy of the subsequent models. This is shown in the results section of the Dynamic MNIST model where the subsequent models in the Dynamic Model performing worse than its counterpart which did not undergo dynamic training. This is also supported by the explanation that additional training epochs would likely alter the original parameters provided by the previous models.
 ### train_altered.py
-  In order to support Dynamic Training, the original **"train.py"** has to be altered; while at the same time causing minimum inteference to the entire training process. 
+  The provided "train.py" does not provide the neccessary functions to support Dynamic Training. Thus, it has to be altered while at the same time causing minimum inteference to the entire training process. The altered version is called **"train_altered.py"**, which contains additional code that supports Dynamic Training. The location in which the addtional codes are placed ensures minimal interaction to the training process. The python file of the Dynamic Model have to be imported to **"train_altered.py"** for linking purposes. It contains 3 variables that have to be changed for each subsequent training, and these are "LOGGER_INFO", "RATIO" and the 1st argument of "apputils.load_lean_checkpoint()". The "LOGGER_INFO" selects the trained version of the previous model in which the weights of the current model would be initiallised with. The "RATIO" represents the dimension of the previous model's channel, which is dependant for each layer (though not in this dynamic model). Finally, the 1st argument of "apputils.load_lean_checkpoint()" should be the initiallisation of the previous model. The code below is an example of training the 75% model using the weights of 50% model.
+  (image)
 ## Optimizing the Dynamic Model Accuracy
-### Epochs
-### Training Schedule policy
+  The project measures the accuracy of the Dynamic Model through analysing the accuracy of each subsequent model. Thus, the smallest model's accuracy is just as important as the largest mode's accuracy. During training, the best outcome for a dynamic model is increasing the accuracy of the current model while maintaining the accuracy of the previous model. This sections aims to achieve this outcome. It is important to note that these factors are heavily dependant on the type of dataset used, although it would not be the main area of focus as there is less control over it.
+### Number of Epochs
+  The number of epochs firstly depends heavily of the type of dataset, but that will not be the area of focus. For the first starting model (base model), the number of epochs should be high to set a good foundation for the subsequent models and for its accuracy. The number of epochs should reflect the stage in which the accuracy of the model stabilizes, in the case of MNIST is 25 epochs. For the subsequent models however, each additional epoch would likely mean a decreased accuracy for all previous models before it, especially the base model. The selected epoch number have to therefore balance between increasing the current model's accuracy and maintaining previous models' accuracy. The best approach is using trial and error, and in the case of MNIST is found to be 5 epochs each for subsequent models.
+### Number of subsequent models
 ### QAT policy
 
 # Synthesising and Modification of the code for Dynamic Model
