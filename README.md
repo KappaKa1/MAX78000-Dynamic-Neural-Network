@@ -52,8 +52,8 @@
 
 # Data Streaming, Testing and Data Collecting
   The model on MAX78000 have to be validated with the **TEST DATASET** provided in the MNIST Dataset. The data are loaded onto the MAX78000 using a UART from a laptop, and the output of the inference (plus inference time) is outputted from the MAX78000 to the laptop. As for the values of power consumptions, there is a usb port (CN1) that uses UART to output the data per inference and can be collected using a laptop (although this is not done in the project due to the lack of ports). The values of power consumptions can alternatively be observed through the LED display provided on the MAX78000 EV kit board (which is the primary method for obtaining energy data in this project).
-## Data Normalizing and Loading of Data (HCW)
-  The values of the MNIST dataset comes in the ranges of [0,255]. The MAX78000 requires all data input to be normalized in the range of [-128,127], and this is done through XOR gate of 128 (^ 128) for the MNSIT dataset. The format in which the MNIST inputs are stored is HCW [(Height-Width-Channel)](https://github.com/analogdevicesinc/ai8x-training#hwc-height-width-channels).
+## Data Normalizing and Loading of Data (CHW)
+  The values of the MNIST dataset comes in the ranges of [0,255], with each data having **784** bytes. The MAX78000 requires all input data to be normalized in the range of [-128,127], and this is done through XOR gate of 128 (^ 128) to the MNSIT dataset. The input data are transmitted and received through UART protocol in bytes. During Transmission, a data is split into groups of 4 bytes, with the order of the 4 bytes inverted (required by the board). Once received at the board, each 4 bytes of input data are concatenated to a single block of 32-bits data and is stored in the desired address. The selected format in which the MNIST inputs are stored is CHW [(Channel-Height-Width)](https://github.com/analogdevicesinc/ai8x-training#hwc-height-width-channels), which priotises channels (less complex for MNIST which only have a single input channel).
 ## UART Initialisation and UART Transaction
-
+## Push Button
 # Future Works
