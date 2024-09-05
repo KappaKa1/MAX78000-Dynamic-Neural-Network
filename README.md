@@ -59,11 +59,11 @@
 ### Sample file
   For verification purposes, a sample file is required for KAT (Known-Answer-Test). There are two ways to generate a sample, either by slicing a sample data during training or by generating a random sample. To slice a sample data, include `--save-sample [number]` in the training script. To generate a random sample, use the code below
 '''
-`  import os
+import os
 import numpy as np
 
 a = np.random.randint(-128, 127, size=(1, 28, 28), dtype=np.int64)
-np.save(os.path.join('tests', 'sample_mnist'), a, allow_pickle=False, fix_imports=False)`
+np.save(os.path.join('tests', 'sample_mnist'), a, allow_pickle=False, fix_imports=False)
 '''
 For slicing a sample data, use the script below.
 ### ai8xer.py
