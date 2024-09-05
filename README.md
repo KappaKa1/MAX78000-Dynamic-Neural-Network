@@ -5,7 +5,7 @@
   Before embarking on the project, there are several software and environment set-ups that have to be done. A detailed walkthrough of all the necessary installations can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#installation). 
 
 # Completed Models
-- MNIST Dataset
+- [MNIST Dataset]()
 
 # Models in progress
-- Cifar100 Dataset
+- [Cifar100 Dataset]()
