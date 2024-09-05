@@ -1,3 +1,9 @@
+# Software and Environment set-up installations
+  Before embarking on the project, there are several software and environment set-ups that have to be done. A detailed walkthrough of all the necessary installations can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#installation). 
+  Here are the information for the systems involved in the project:
+  - The project was carried out using a Windows 11 operating system
+  - **Ubuntu 22.04.3 LTS** was used for a virtual Linux environment.
+  - The main IDE used is the provided **Eclipse** 
 # Training the AI Dynamic Model
   Before describing the Dynamic training approach, here are some important information to take note of that governs the way training is done throughtout the project. The Dynamic approach strictly follow these information, but diverges in [train.py](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#trainpy) as the provided software does not support Dynamic training. The Dynamic Training approach consist of models inheriting parameters from previous smaller trained models that are predefind sizes of 25%, 50%, 75% and 100% (final model). The final model produced would have parameters resembling that of previous models. This allow the model to alter in size, though discretely, while retaining accpetable accuracy.
   
