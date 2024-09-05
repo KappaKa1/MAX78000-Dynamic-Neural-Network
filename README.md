@@ -133,7 +133,7 @@ python ai8xize.py --verbose --test-dir demos --prefix example --checkpoint-file 
 ```
 ## Weights and Processor modification for Dynamic Model
   The Dynamic Model in this project alters the size of each model by altering the channel number of each layer. The channel number of the next layer equates to the number of 2x2 weights used during inference. The image below provides an example. This process is replicated on the MAX78000 by altering the max-address register for weight memory (per layer) in each processor. The MAX78000 also contains 64 processors, with each processor having its own **weights memory** and each managing a single channel. Therefore, the processor enable register have to be altered according to the number of active channel to prevent inference of unwanted channels.
-
+![Image showing the next layer's output](/Images/Convolution.png)
   **Note**: In the memory register, bits[3:0] and bits[19:16] should not be altered. In the processor register, bits [31:16] controls the weight counter and bits [15:0] control the processor power. To turn off the first processor entirely, turn off bit[16] and bit[0].
   
 # Data Streaming, Testing and Data Collecting
