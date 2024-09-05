@@ -47,11 +47,22 @@
 
 # Synthesising and Modification of the code for Dynamic Model
 ## Synthesising and ai8xer.py
-  The MAX78000 provides a software `ai8xer.py` that translates the python model code into C language that can be synthesized onto the board. There are 3 main files that are required when using the `ai8xer.py`, and are the python model, the network description file and the sample file. Information on the python model found can be found [here]().
+  The MAX78000 provides a software `ai8xer.py` that translates the python model code into C language that can be synthesized onto the board. There are 3 main files that are required when using the `ai8xer.py`, and are the quantisised weights file, the network description file and the sample file. Information on the python model found can be found [here](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#model-design).
+### Quantisised weights file
+  The following code produces a quantisised weight file under the directory `ai8x-synthesis/trained/`. Please note to use the weights with [QAT policy]() when quantisising.
+  `python quantize.py ../ai8x-training/logs/2024.09.01-120027/qat_best.pth.tar  trained/proj-final.pth.tar --device MAX78000 -v "$@"`
 ### Network Description file and Sample file
-  The network description file contains high-level codes which describes inner workings, like processor enables, to the board. It can be generat
-## Weights and Processor modification for Dynamic Model
+  The network description file contains high-level codes which describes the network to the board. It can be generated through the python code below, although it only works for simple networks and would produce errors for much complex models.
+`python train.py --device MAX78000 --model ai85net5 --dataset MNIST --epochs 4 --yaml-template mnist_final.yaml`
+  The best approach is to generate the network description file, then correct any mistakes made by the software. Additional descriptions can be added [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#global-configuration)
 
+### ai8xer.py
+  `python ai8xize.py --verbose --test-dir demos --prefix final-proj --checkpoint-file trained/proj-final.pth.tar --config-file networks/final-mnist.yaml --device MAX78000 --compact-data --softmax --energy --no-kat`
+## Weights and Processor modification for Dynamic Model
+  The Dynamic Model in this project alters the size of each model by altering the channel number of each layer. To alter the channel number, the number of weights used in inference is altered (i.e. To output 16-channel on the next layer, only 16 2x2 weights would be involved in the inference of the current layer). This process is replicated on the MAX78000 by altering the max-address register for weight memory (per layer) in each processor. The MAX78000 also contains 64 processors, with each processor having its own **weights memory** and each managing a single channel. Therefore, the processor enable register have to be altered according to the number of active channel to prevent inference of unwanted channels.
+
+  **Note**: In the memory register, bits[3:0] and bits[19:16] should not be altered. In the processor register, bits [31:16] controls the weight counter and bits [15:0] control the processor power. To turn off the first processor entirely, turn off bit[16] and bit[0].
+  
 # Data Streaming, Testing and Data Collecting
   The Dynamic Model on MAX78000 is validated with the **TEST DATASET** provided in the MNIST Dataset. The data are loaded onto the MAX78000 using a UART from a laptop, and the output of the inference (plus inference time) is outputted from the MAX78000 to the laptop. As for the values of power consumptions, there is a usb port (CN1) that serially outputs the data per inference which can be collected using external device. The values of power consumptions can alternatively be observed through the LED display provided on the MAX78000 EV kit board (which is the primary method for obtaining power data in this project).
 ## Data Normalizing and Loading of Data (CHW)
