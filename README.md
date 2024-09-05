@@ -28,7 +28,6 @@
 `(ai8x-training) $ python train.py --lr 0.1 --optimizer SGD --epochs 25 --deterministic --compress policies/schedule.yaml --model mnist_25 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 --qat-policy policies/KC_policies/MNIST/qat_policy_kc_start.yaml "$@"`
 ### Quantisation Aware Training (QAT) policy
   The parameters after training needs to be [quantasized](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#synthesising-and-ai8xerpy) before getting synthesized onto the board. Quantisation converts the parameters of a floating-point value to an 8-bit value, which lowers the accuracy of the model. A QAT policy can be used during training to lower the effects of quantisation through introducing an extra variable. The variable requires some training and the accuracy of the model might decrease when the QAT policy starts. It is enabled by default and is controlled by a policy file ("qat_policy.yaml"). QAT policy file can be specifically designed to improve quantisation effects, and should be done depending on the model.
-  The project applies QAT policy in every step of the dynamic training, although taking place at different epochs. The QAT policy takes effect on the **10th Epoch** for the base model while the QAT policy takes effect on the **2nd Epoch** for the subsequent models. These numbers are chosen based on the explanation that the model's accuracy have to first stabilize (or high enough) before a QAT policy starts, and the parameter in the QAT policy have to be trained.
 ## Training the Dynamic Model
   The training stage is crucial for building a Model with dynamic traits. The training method utilized is similar to inheriting, where a model would inherit parts of its initial parameters from a smaller yet similar trained model. It would then undergo the training process such that its weights would be trained while retaining some resemblance of the previous model. The figure below illustrates the training process.
   <image>
@@ -39,11 +38,14 @@
 ## Optimizing the Dynamic Model Accuracy
   The project measures the accuracy of the Dynamic Model through analysing the accuracy of each subsequent model. Thus, the smallest model's accuracy is just as important as the largest mode's accuracy. During training, the best outcome for a dynamic model is increasing the accuracy of the current model while maintaining the accuracy of the previous model. This sections aims to achieve this outcome. It is important to note that these factors are heavily dependant on the type of dataset used, although it would not be the main area of focus as there is less control over it.
 ### Number of Epochs
-  The number of epochs firstly depends heavily of the type of dataset, but that will not be the area of focus. For the first starting model (base model), the number of epochs should be high to set a good foundation for the subsequent models and for its accuracy. The number of epochs should reflect the stage in which the accuracy of the model stabilizes, in the case of MNIST is 25 epochs. For the subsequent models however, each additional epoch would likely mean a decreased accuracy for all previous models before it, especially the base model. The selected epoch number have to therefore balance between increasing the current model's accuracy and maintaining previous models' accuracy. The best approach is using trial and error, and in the case of MNIST is found to be 5 epochs each for subsequent models.
+  The number of epochs firstly depends heavily of the type of dataset, but that will not be the area of focus. In the first starting model (base model), the number of epochs should be high to set a good foundation for the subsequent models. This number should be at the stage in which the accuracy of the model stabilizes. For the subsequent models however, each additional epoch would likely mean a decreased accuracy for all previous models before it, especially the base model. The selected epoch number have to therefore balance between increasing the current model's accuracy and maintaining previous models' accuracy. The best approach is through trial and error.
+  In the project, the number of training epoch for the base model was set to 25 epochs. The number of training epochs for the subsequent models was set to 5 epochs
 ### Number of subsequent models
-  The number of seubsequent models affects the number of epochs. With a high number of subsequent models, the starting few models' accuracy would be heavily impeded due to the high dynamic training frequency. Thus, a suitable number of subsequency models have to be chosen to maintain a high accuracy for the base model. The MNIST Dynamic Model uses 4 total models, and are 25%, 50%, 75% and 100%.
+  The number of subsequent models affects the number of epochs. With a high number of subsequent models, the starting few models' accuracy would be heavily impeded due to the high dynamic training frequency. Thus, a suitable number of subsequency models have to be chosen to maintain a high accuracy for the base model. 
+  The MNIST Dynamic Model uses 4 total models, and are 25%, 50%, 75% and 100%.
 ### QAT policy
-
+  The QAT policy file dictates the epoch in which QAT begins and how the parameters are quantisised. It is recommended that the selected epoch is at a stage in which the accuracy of the model stabilises, and that there is enough epoch **(after)** for the QAT's parameter to be trained. 
+  The project applies QAT policy in every step of the dynamic training, although starting at different epochs. The QAT policy takes effect on the **10th Epoch** for the base model while the QAT policy takes effect on the **2nd Epoch** for the subsequent models.
 
 # Synthesising and Modification of the code for Dynamic Model
 ## Synthesising and ai8xer.py
@@ -55,16 +57,18 @@
   The network description file contains high-level codes which describes the network to the board. It can be generated through the python code below, although it only works for simple networks and would produce errors for much complex models. The best approach is to generate the network description file, then correct any mistakes made by the software. Additional descriptions can be added [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#global-configuration)
 `python train.py --device MAX78000 --model ai85net5 --dataset MNIST --epochs 4 --yaml-template mnist_final.yaml`
 ### Sample file
-  A sample file is required for a KAT (known-answer-test). The code below can be used to generate a sample.
+  For verification purposes, a sample file is required for KAT (Known-Answer-Test). There are two ways to generate a sample, either by slicing a sample data during training or by generating a random sample. To slice a sample data, include `--save-sample [number]` in the training script. To generate a random sample, use the code below
 `  import os
 import numpy as np
 
 a = np.random.randint(-128, 127, size=(1, 28, 28), dtype=np.int64)
 np.save(os.path.join('tests', 'sample_mnist'), a, allow_pickle=False, fix_imports=False)`
+For slicing a sample data, use the script below.
 ### ai8xer.py
-  `python ai8xize.py --verbose --test-dir demos --prefix final-proj --checkpoint-file trained/proj-final.pth.tar --config-file networks/final-mnist.yaml --device MAX78000 --compact-data --softmax --energy --no-kat`
+  Once all 3 files are ready, use the script below to generate C code that can be synthesised into the board.
+  `python ai8xize.py --verbose --test-dir demos --prefix example --checkpoint-file trained/example.pth.tar --config-file networks/example.yaml --device MAX78000 --compact-data --softmax --energy --no-kat`
 ## Weights and Processor modification for Dynamic Model
-  The Dynamic Model in this project alters the size of each model by altering the channel number of each layer. To alter the channel number, the number of weights used in inference is altered (i.e. To output 16-channel on the next layer, only 16 2x2 weights would be involved in the inference of the current layer). This process is replicated on the MAX78000 by altering the max-address register for weight memory (per layer) in each processor. The MAX78000 also contains 64 processors, with each processor having its own **weights memory** and each managing a single channel. Therefore, the processor enable register have to be altered according to the number of active channel to prevent inference of unwanted channels.
+  The Dynamic Model in this project alters the size of each model by altering the channel number of each layer. The channel number of the next layer equates to the number of 2x2 weights used during inference. The image below provides an example. This process is replicated on the MAX78000 by altering the max-address register for weight memory (per layer) in each processor. The MAX78000 also contains 64 processors, with each processor having its own **weights memory** and each managing a single channel. Therefore, the processor enable register have to be altered according to the number of active channel to prevent inference of unwanted channels.
 
   **Note**: In the memory register, bits[3:0] and bits[19:16] should not be altered. In the processor register, bits [31:16] controls the weight counter and bits [15:0] control the processor power. To turn off the first processor entirely, turn off bit[16] and bit[0].
   
