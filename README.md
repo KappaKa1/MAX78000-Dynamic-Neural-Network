@@ -16,9 +16,37 @@
   The Data Loader used in this project is the provided MNIST Data Loader, which has proccessed the MNIST dataset for training. The data loader also manipulates the image data, through image rotation or position offsetting, that prevents overfitted models and enhances the model's robustness.
 
 ### Model Design
-  The MAX78000 uses the `ai8x.py` library and its predefined modules to describe the design of the model. A list of predefined modules can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#list-of-predefined-modules). All model designs must follow the predefined modules to be synthesizable onto the MAX78000. Pre-existing models can be adapted onto the board by following the [steps listed here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#adapting-pre-existing-models).
+  The MAX78000 uses the `ai8x.py` library and its predefined modules to describe the design of the model. A list of predefined modules can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#list-of-predefined-modules). All model designs must follow the predefined modules to be synthesizable onto the MAX78000. Pre-existing models can be adapted onto the board by following the [steps listed here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#adapting-pre-existing-models). 
 
-  The Dynamic Model in this project contains 4 seperate models that are labeled 100%, 75%, 50% and 25%. Although the main focus of this project is not on model design, the structure of the Dynamic Model have to be large to produce acceptable accuracy in the 25% model. Due to the simplistic nature of the MNIST dataset, the Dynamic Model design consists solely of 4 convolutional layer and a final fully connected layer for categorizing the results. The final model (100%) contains 64-channels, and its subsequnt models which are 75%, 50% and 25% contains 48-channels, 32-channels and 16-channels respectively.
+  The Dynamic Model in this project contains 4 seperate models that are labeled 100%, 75%, 50% and 25%. Although the main focus of this project is not on model design, the structure of the Dynamic Model have to be large to produce acceptable accuracy in the 25% model. Each model consists solely of 4 convolutional layer and a final fully connected layer for categorizing the results. The final model (100%) contains 64-channels, and its subsequnt models which are 75%, 50% and 25% contains 48-channels, 32-channels and 16-channels respectively.The code below displays the 25% model of the Dynamic Model.
+  ```
+class MNIST_25(nn.Module):
+
+    def __init__(self, num_classes=10, num_channels=1, dimensions=(28, 28),
+                 planes=16, pool=2, fc_inputs=12, bias=False, **kwargs):
+                 
+        super().__init__();
+        dim = dimensions[0];
+        self.conv1 = ai8x.FusedConv2dReLU(num_channels, planes, 3, 
+                                        padding=0, bias=bias);
+        self.conv2 = ai8x.FusedConv2dReLU(planes, planes, 3, 
+                                        padding=0, bias=bias);
+        self.conv3 = ai8x.FusedMaxPoolConv2dReLU(planes, planes, 3, 
+                                        padding=0, bias=bias)                             
+        self.conv4 =  ai8x.FusedMaxPoolConv2dReLU(planes, fc_inputs, 1, 
+                                        padding=0, bias=bias)                            
+        self.fc = ai8x.Linear(fc_inputs * (5**2), num_classes, bias = bias);
+        
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = self.conv4(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+
+        return x
+```
   
 ## Model Training
 ### train.py
