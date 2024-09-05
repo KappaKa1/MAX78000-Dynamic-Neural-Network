@@ -25,7 +25,9 @@
 ## Model Training
 ### train.py
   The MAX78000 provides a training software `train.py` that is used in training AI models for the board. It is activated through a shell script environment (Ubuntu 22.04.03), coupled with other arguments which can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#command-line-arguments). This software however does not support Dynamic Model training. It was thus modified in [train_altered.py](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#train_alteredpy) to support Dynamic Model training. an example script for training MNIST model is shown below.
-> (ai8x-training) $ python train.py --lr 0.1 --optimizer SGD --epochs 25 --deterministic --compress policies/schedule.yaml --model mnist_25 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 --qat-policy policies/KC_policies/MNIST/qat_policy_kc_start.yaml "$@"
+```
+(ai8x-training) $ python train.py --lr 0.1 --optimizer SGD --epochs 25 --deterministic --compress policies/schedule.yaml --model mnist_25 --dataset MNIST --confusion --param-hist --pr-curves --embedding --device MAX78000 --qat-policy policies/KC_policies/MNIST/qat_policy_kc_start.yaml "$@"
+```
 ### Quantisation Aware Training (QAT) policy
   The parameters after training needs to be [quantasized](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#synthesising-and-ai8xerpy) before getting synthesized onto the board. Quantisation converts the parameters of a floating-point value to an 8-bit value, which lowers the accuracy of the model. A QAT policy can be used during training to lower the effects of quantisation through introducing an extra variable. The variable requires some training and the accuracy of the model might decrease when the QAT policy starts. It is enabled by default and is controlled by a policy file ("qat_policy.yaml"). QAT policy file can be specifically designed to improve quantisation effects, and should be done depending on the model.
 ## Training the Dynamic Model
@@ -34,7 +36,9 @@
   The intensity of the Dynamic Model training depends heavily on the Dataset itself and the amount of nested models needed. And the intensity of each training of subsequent models is negatively correlated with the accuracy of the subsequent models. This is shown in the results section of the Dynamic MNIST model where the subsequent models in the Dynamic Model performing worse than its counterpart which did not undergo dynamic training. This is also supported by the explanation that additional training epochs would likely alter the original parameters provided by the previous models.
 ### train_altered.py
   The provided `train.py` does not provide the neccessary functions to support Dynamic Training. Thus, it has to be altered while at the same time causing minimum inteference to the entire training process. The altered version is called `train_altered.py`, which contains additional code that supports Dynamic Training. The location in which the addtional codes are placed ensures minimal interaction to the training process. The python file of the Dynamic Model have to be imported to `train_altered.py` for linking purposes. It contains 3 variables that have to be changed for each subsequent training, and these are `LOGGER_INFO`, `RATIO` and the 1st argument of `apputils.load_lean_checkpoint()". The `LOGGER_INFO` selects the trained version of the previous model in which the weights of the current model would be initiallised with. The `RATIO` represents the dimension of the previous model's channel, which is dependant for each layer (though not in this dynamic model). Finally, the 1st argument of `apputils.load_lean_checkpoint()` should be the initiallisation of the previous model. The code below is an example of training the 75% model using the weights of 50% model.
+```
   (image)
+```
 ## Optimizing the Dynamic Model Accuracy
   The project measures the accuracy of the Dynamic Model through analysing the accuracy of each subsequent model. Thus, the smallest model's accuracy is just as important as the largest mode's accuracy. During training, the best outcome for a dynamic model is increasing the accuracy of the current model while maintaining the accuracy of the previous model. This sections aims to achieve this outcome. It is important to note that these factors are heavily dependant on the type of dataset used, although it would not be the main area of focus as there is less control over it.
 ### Number of Epochs
@@ -52,7 +56,9 @@
   The MAX78000 provides a software `ai8xer.py` that translates the python model code into C language that can be synthesized onto the board. There are 3 main files that are required when using the `ai8xer.py`, and are the quantisised weights file, the network description file and the sample file. Information on the python model found can be found [here](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#model-design).
 ### Quantisised weights file
   The following code produces a quantisised weight file under the directory `ai8x-synthesis/trained/`. Please note to use the weights with [QAT policy](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#quantisation-aware-training-qat-policy) when quantisising.
-  `python quantize.py ../ai8x-training/logs/2024.09.01-120027/qat_best.pth.tar  trained/proj-final.pth.tar --device MAX78000 -v "$@"`
+```
+python quantize.py ../ai8x-training/logs/2024.09.01-120027/qat_best.pth.tar  trained/proj-final.pth.tar --device MAX78000 -v "$@"
+```
 ### Network Description file
   The network description file contains high-level codes which describes the network to the board. It can be generated through the python code below, although it only works for simple networks and would produce errors for much complex models. The best approach is to generate the network description file, then correct any mistakes made by the software. Additional descriptions can be added [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#global-configuration)
 `python train.py --device MAX78000 --model ai85net5 --dataset MNIST --epochs 4 --yaml-template mnist_final.yaml`
@@ -68,7 +74,9 @@ np.save(os.path.join('tests', 'sample_mnist'), a, allow_pickle=False, fix_import
 For slicing a sample data, use the script below.
 ### ai8xer.py
   Once all 3 files are ready, use the script below to generate C code that can be synthesised into the board.
-  `python ai8xize.py --verbose --test-dir demos --prefix example --checkpoint-file trained/example.pth.tar --config-file networks/example.yaml --device MAX78000 --compact-data --softmax --energy --no-kat`
+```
+python ai8xize.py --verbose --test-dir demos --prefix example --checkpoint-file trained/example.pth.tar --config-file networks/example.yaml --device MAX78000 --compact-data --softmax --energy --no-kat
+```
 ## Weights and Processor modification for Dynamic Model
   The Dynamic Model in this project alters the size of each model by altering the channel number of each layer. The channel number of the next layer equates to the number of 2x2 weights used during inference. The image below provides an example. This process is replicated on the MAX78000 by altering the max-address register for weight memory (per layer) in each processor. The MAX78000 also contains 64 processors, with each processor having its own **weights memory** and each managing a single channel. Therefore, the processor enable register have to be altered according to the number of active channel to prevent inference of unwanted channels.
 
