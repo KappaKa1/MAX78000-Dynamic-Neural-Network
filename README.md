@@ -52,17 +52,16 @@
   The project applies QAT policy in every step of the dynamic training, although starting at different epochs. The QAT policy takes effect on the **10th Epoch** for the base model while the QAT policy takes effect on the **2nd Epoch** for the subsequent models.
 
 # Synthesising and Modification of the code for Dynamic Model
-## Synthesising and ai8xer.py
-  The MAX78000 provides a software `ai8xer.py` that translates the python model code into C language that can be synthesized onto the board. There are 3 main files that are required when using the `ai8xer.py`, and are the quantisised weights file, the network description file and the sample file. Information on the python model found can be found [here](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#model-design).
-### Quantisised weights file
+  The MAX78000 provides a software `ai8xer.py` that translates the python model code into C language that can be synthesized onto the board. There are 3 main files that are required when using the `ai8xer.py`, and are the quantisised weights file, the network description file and the sample file.
+## Quantisised weights file
   The following code produces a quantisised weight file under the directory `ai8x-synthesis/trained/`. Please note to use the weights with [QAT policy](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#quantisation-aware-training-qat-policy) when quantisising.
 ```
 python quantize.py ../ai8x-training/logs/2024.09.01-120027/qat_best.pth.tar  trained/proj-final.pth.tar --device MAX78000 -v "$@"
 ```
-### Network Description file
+## Network Description file
   The network description file contains high-level codes which describes the network to the board. It can be generated through the python code below, although it only works for simple networks and would produce errors for much complex models. The best approach is to generate the network description file, then correct any mistakes made by the software. Additional descriptions can be added [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#global-configuration)
 `python train.py --device MAX78000 --model ai85net5 --dataset MNIST --epochs 4 --yaml-template mnist_final.yaml`
-### Sample file
+## Sample file
   For verification purposes, a sample file is required for KAT (Known-Answer-Test). There are two ways to generate a sample, either by slicing a sample data during training or by generating a random sample. To slice a sample data, include `--save-sample [number]` in the training script. To generate a random sample, use the code below
 ```
 import os
