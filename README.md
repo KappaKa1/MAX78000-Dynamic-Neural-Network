@@ -5,7 +5,7 @@
   Before embarking on the project, there are several software and environment set-ups that have to be done. A detailed walkthrough of all the necessary installations can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#installation). 
 
 # Completed Models
-- [MNIST Dataset]()
+- [MNIST Dataset](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/MNIST-Dynamic-Neural-Network/README.md#mnist-dynamic-neural-network)
 
 # Models in progress
 - [Cifar100 Dataset]()
