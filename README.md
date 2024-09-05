@@ -37,7 +37,30 @@
 ### train_altered.py
   The provided `train.py` does not provide the neccessary functions to support Dynamic Training. Thus, it has to be altered while at the same time causing minimum inteference to the entire training process. The altered version is called `train_altered.py`, which contains additional code that supports Dynamic Training. The location in which the addtional codes are placed ensures minimal interaction to the training process. The python file of the Dynamic Model have to be imported to `train_altered.py` for linking purposes. It contains 3 variables that have to be changed for each subsequent training, and these are `LOGGER_INFO`, `RATIO` and the 1st argument of `apputils.load_lean_checkpoint()". The `LOGGER_INFO` selects the trained version of the previous model in which the weights of the current model would be initiallised with. The `RATIO` represents the dimension of the previous model's channel, which is dependant for each layer (though not in this dynamic model). Finally, the 1st argument of `apputils.load_lean_checkpoint()` should be the initiallisation of the previous model. The code below is an example of training the 75% model using the weights of 50% model.
 ```
-  (image)
+    if True:
+        LOGGER_INFO = "logs/2024.09.01-121816/qat_best.pth.tar"
+        INPUT_NO = 1
+        RATIO = int(64 * 0.75)
+        fc_inputs = 12
+        Prev_Model = apputils.load_lean_checkpoint(mnist_model.mnist_75(), LOGGER_INFO,
+                                              model_device=args.device)
+        
+        with torch.no_grad():
+            for name, param in model.named_parameters():
+                param_source = dict(Prev_Model.named_parameters())[name]
+                
+                if "conv" in name and param.dim() == 4:
+                    if 'conv1' in name:
+                        param.data[0:RATIO, :, :, :] = param_source.clone()
+                    elif 'conv2' in name:
+                        param.data[0:RATIO, 0:RATIO, :, :] = param_source.clone()
+                    #elif 'conv3' in name:
+                    #    param.data[0:RATIO, 0:RATIO, :, :] = param_source.clone()
+                    #elif 'conv4' in name:
+                    #    param.data[0:fc_inputs, 0:RATIO, :, :] = param_source.clone()
+
+                elif param.shape == param_source.shape:                                         
+                    param.data = param_source.clone()    
 ```
 ## Optimizing the Dynamic Model Accuracy
   The project measures the accuracy of the Dynamic Model through analysing the accuracy of each subsequent model. Thus, the smallest model's accuracy is just as important as the largest mode's accuracy. During training, the best outcome for a dynamic model is increasing the accuracy of the current model while maintaining the accuracy of the previous model. This sections aims to achieve this outcome. It is important to note that these factors are heavily dependant on the type of dataset used, although it would not be the main area of focus as there is less control over it.
