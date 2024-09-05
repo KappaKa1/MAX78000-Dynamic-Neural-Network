@@ -87,15 +87,16 @@ class MNIST_25(nn.Module):
 ## Optimizing the Dynamic Model Accuracy
   The project measures the accuracy of the Dynamic Model through analysing the accuracy of each subsequent model. Thus, the smallest model's accuracy is just as important as the largest mode's accuracy. During training, the best outcome for a dynamic model is increasing the accuracy of the current model while maintaining the accuracy of the previous model. This sections aims to achieve this outcome. It is important to note that these factors are heavily dependant on the type of dataset used, although it would not be the main area of focus as there is less control over it.
 ### Number of Epochs
-  The number of epochs firstly depends heavily of the type of dataset, but that will not be the area of focus. In the first starting model (base model), the number of epochs should be high to set a good foundation for the subsequent models. This number should be at the stage in which the accuracy of the model stabilizes. For the subsequent models however, each additional epoch would likely mean a decreased accuracy for all previous models before it, especially the base model. The selected epoch number have to therefore balance between increasing the current model's accuracy and maintaining previous models' accuracy. The best approach is through trial and error.
+  The number of epochs firstly depends heavily of the type of dataset, but that will not be the area of focus. In the first starting model (base model), the number of epochs should be high to set a good foundation for the subsequent models. This number should be at the stage in which the accuracy of the model stabilizes. For the subsequent models however, each additional epoch would likely mean a decreased accuracy for all previous models before it, especially the base model. The selected epoch number have to therefore balance between increasing the current model's accuracy and maintaining previous models' accuracy. The best approach is through trial and error. 
 
+  The table below shows each model and its number of training epochs,
 | Model  | Number of Epochs |
-| ------------- | ------------- |
+| ------ | ---------------- |
 | 25% | 25 Epochs  |
 | 50% | 5 Epochs  |
 | 75% | 5 Epochs  |
 | 100% | 5 Epochs  |
-  In the project, the number of training epoch for the base model was set to 25 epochs. The number of training epochs for the subsequent models was set to 5 epochs
+
 ### Number of subsequent models
   The number of subsequent models affects the number of epochs. With a high number of subsequent models, the starting few models' accuracy would be heavily impeded due to the high dynamic training frequency. Thus, a suitable number of subsequency models have to be chosen to maintain a high accuracy for the base model. 
   The MNIST Dynamic Model uses 4 total models, and are 25%, 50%, 75% and 100%.
