@@ -1,3 +1,5 @@
+# MNIST Dynamic Neural Network
+  idk what to say here yet
 # Software and Environment set-up installations
   Before embarking on the project, there are several software and environment set-ups that have to be done. A detailed walkthrough of all the necessary installations can be found [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#installation). 
   Here are the information for the systems involved in the project:
