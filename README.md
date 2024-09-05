@@ -79,7 +79,9 @@ python quantize.py ../ai8x-training/logs/2024.09.01-120027/qat_best.pth.tar  tra
 ```
 ## Network Description file
   The network description file contains high-level codes which describes the network to the board. It can be generated through the python code below, although it only works for simple networks and would produce errors for much complex models. The best approach is to generate the network description file, then correct any mistakes made by the software. Additional descriptions can be added [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#global-configuration)
-`python train.py --device MAX78000 --model ai85net5 --dataset MNIST --epochs 4 --yaml-template mnist_final.yaml`
+```
+python train.py --device MAX78000 --model ai85net5 --dataset MNIST --epochs 4 --yaml-template mnist_final.yaml
+```
 ## Sample file
   For verification purposes, a sample file is required for KAT (Known-Answer-Test). There are two ways to generate a sample, either by slicing a sample data during training or by generating a random sample. To slice a sample data, include `--save-sample [number]` in the training script. To generate a random sample, use the code below
 ```
