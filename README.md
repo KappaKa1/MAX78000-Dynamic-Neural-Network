@@ -49,13 +49,18 @@
 ## Synthesising and ai8xer.py
   The MAX78000 provides a software `ai8xer.py` that translates the python model code into C language that can be synthesized onto the board. There are 3 main files that are required when using the `ai8xer.py`, and are the quantisised weights file, the network description file and the sample file. Information on the python model found can be found [here](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#model-design).
 ### Quantisised weights file
-  The following code produces a quantisised weight file under the directory `ai8x-synthesis/trained/`. Please note to use the weights with [QAT policy]() when quantisising.
+  The following code produces a quantisised weight file under the directory `ai8x-synthesis/trained/`. Please note to use the weights with [QAT policy](https://github.com/KappaKa1/MAX78000-Dynamic-Neural-Network/blob/main/README.md#quantisation-aware-training-qat-policy) when quantisising.
   `python quantize.py ../ai8x-training/logs/2024.09.01-120027/qat_best.pth.tar  trained/proj-final.pth.tar --device MAX78000 -v "$@"`
-### Network Description file and Sample file
-  The network description file contains high-level codes which describes the network to the board. It can be generated through the python code below, although it only works for simple networks and would produce errors for much complex models.
+### Network Description file
+  The network description file contains high-level codes which describes the network to the board. It can be generated through the python code below, although it only works for simple networks and would produce errors for much complex models. The best approach is to generate the network description file, then correct any mistakes made by the software. Additional descriptions can be added [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#global-configuration)
 `python train.py --device MAX78000 --model ai85net5 --dataset MNIST --epochs 4 --yaml-template mnist_final.yaml`
-  The best approach is to generate the network description file, then correct any mistakes made by the software. Additional descriptions can be added [here](https://github.com/analogdevicesinc/ai8x-training?tab=readme-ov-file#global-configuration)
+### Sample file
+  A sample file is required for a KAT (known-answer-test). The code below can be used to generate a sample.
+`  import os
+import numpy as np
 
+a = np.random.randint(-128, 127, size=(1, 28, 28), dtype=np.int64)
+np.save(os.path.join('tests', 'sample_mnist'), a, allow_pickle=False, fix_imports=False)`
 ### ai8xer.py
   `python ai8xize.py --verbose --test-dir demos --prefix final-proj --checkpoint-file trained/proj-final.pth.tar --config-file networks/final-mnist.yaml --device MAX78000 --compact-data --softmax --energy --no-kat`
 ## Weights and Processor modification for Dynamic Model
